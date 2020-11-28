@@ -20,10 +20,10 @@ try:
     if not "C:/Program Files (x86)/Vicon/"+NEXUS_VERSION+"/SDK/Python" in sys.path:
         sys.path.append( "C:/Program Files (x86)/Vicon/"+NEXUS_VERSION+"/SDK/Python")
 
-    if not "C:/Program Files (x86)/Vicon/Nexus"+NEXUS_VERSION+"/SDK/Win32" in sys.path:
-        sys.path.append( "C:/Program Files (x86)/Vicon/"+NEXUS_VERSION+"/SDK/Win32")
-except Exception, errormsg:
-    logging.info (errormsg)
+    if not "C:/Program Files (x86)/Vicon/Nexus"+NEXUS_VERSION+"/SDK/Win64" in sys.path:
+        sys.path.append( "C:/Program Files (x86)/Vicon/"+NEXUS_VERSION+"/SDK/Win64")
+except Exception:
+    logging.info ("Nexus Integration failed")
 
 
 ENCODER = "latin-1"
@@ -49,15 +49,16 @@ MAIN_PYCGM2_APPS_PATH = MAIN_PYCGM2_PATH+"Apps\\"
 
 # [Optional] path to embbbed Normative data base.
 NORMATIVE_DATABASE_PATH = MAIN_PYCGM2_PATH +"pyCGM2\\Data\\normativeData\\"  # By default, use pyCGM2-embedded normative data ( Schartz - Pinzone )
+DEEPEVENT_DATA_PATH = MAIN_PYCGM2_PATH +"pyCGM2\\Data\\deepevent\\"
 
 # [Optional] main folder containing osim model
 OPENSIM_PREBUILD_MODEL_PATH = PYCGM2_APPDATA_PATH + "opensim\\"
 
 # [Optional] path pointing at Data Folders used for Tests
 
-TEST_DATA_PATH = "C:\\Users\\FLEBOEUF.CHU-NANTES\\Documents\\DATA\Vicon data\\pyCGM2-Data-Tests\\"
-TEST_DATA_PATH_OUT = "C:\\Users\\FLEBOEUF.CHU-NANTES\\Documents\\DATA\Vicon data\\pyCGM2-Data-Tests-OUT\\"
-MAIN_BENCHMARK_PATH = "C:\\Users\\FLEBOEUF.CHU-NANTES\\Documents\\DATA\Vicon data\\Gait patterns\\"
+TEST_DATA_PATH = "C:\\Users\\fleboeuf\\Documents\\DATA\\pyCGM2-Data-Tests\\"
+TEST_DATA_PATH_OUT = "C:\\Users\\fleboeuf\\Documents\\DATA\\pyCGM2-Data-Tests-OUT\\"
+MAIN_BENCHMARK_PATH = "C:\\Users\\fleboeuf\\Documents\\DATA\\Gait patterns\\"
 
 # [optional] path pointing pyCGM2-Nexus tools
 NEXUS_PYCGM2_TOOLS_PATH = MAIN_PYCGM2_PATH + "pyCGM2\\Nexus\\"

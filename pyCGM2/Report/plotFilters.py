@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-import logging
 import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
 from matplotlib.backends.backend_pdf import PdfPages
 
 import pyCGM2
@@ -70,6 +68,8 @@ class PlottingFilter(object):
                 pp.close()
             else:
                 plt.savefig((self.m_path+ self.m_fileName+"."+self.m_format))
+
+        return self.fig
 
     def setYlimits(self, axisIndex, min, max):
         self.__concretePlotViewer.fig.axes[axisIndex].set_ylim([min,max])

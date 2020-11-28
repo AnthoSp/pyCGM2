@@ -1,5 +1,5 @@
 # coding: utf-8
-import cPickle
+import pickle
 import logging
 import json
 import os
@@ -10,6 +10,7 @@ import yaml
 import yamlordereddictloader
 from bs4 import BeautifulSoup
 from datetime import datetime
+import pandas as pd
 import pyCGM2
 
 
@@ -67,7 +68,7 @@ def loadModel(path,FilenameNoExt):
         raise Exception ("%s-pyCGM2.model file doesn't exist. Run CGM Calibration operation"%filename)
     else:
         f = open((path+filename), 'r')
-        model = cPickle.load(f)
+        model = pickle.load(f)
         f.close()
 
         return model
@@ -85,7 +86,7 @@ def saveModel(model,path,FilenameNoExt):
         os.remove((path + filename))
 
     modelFile = open((path+filename), "w")
-    cPickle.dump(model, modelFile)
+    pickle.dump(model, modelFile)
     modelFile.close()
 
 
@@ -100,7 +101,7 @@ def loadAnalysis(path,FilenameNoExt):
         raise Exception ("%s-pyCGM2.analysis file doesn't exist"%filename)
     else:
         f = open((path+filename), 'r')
-        analysis = cPickle.load(f)
+        analysis = pickle.load(f)
         f.close()
 
         return analysis
@@ -118,7 +119,7 @@ def saveAnalysis(analysisInstance,path,FilenameNoExt):
         os.remove((path + filename))
 
     analysisFile = open((path+filename), "w")
-    cPickle.dump(analysisInstance, analysisFile)
+    pickle.dump(analysisInstance, analysisFile)
     analysisFile.close()
 
 
@@ -381,6 +382,13 @@ def copyPaste(src, dst):
     shutil.copyfile(src,
                     dst)
 
+def copyPasteDirectory(src, dst):
+    shutil.copytree(src,
+                    dst)
+
+def deleteDirectory(dir):
+    shutil.rmtree(dir)
+
 
 def readXml(DATA_PATH,filename):
     infile = open((DATA_PATH+filename),"r")
@@ -402,3 +410,20 @@ def getFileCreationDate(file):
         stamp= stat.st_mtime
 
     return datetime.fromtimestamp(stamp)
+
+
+def concatenateExcelFiles(DATA_PATH_OUT,outputFilename,sheetNames,xlsFiles):
+
+    xlsxWriter = pd.ExcelWriter((DATA_PATH_OUT+outputFilename+".xlsx"))
+    df_total = pd.DataFrame()
+    for sheet in sheetNames:
+        for file in xlsFiles:
+            excel_file = pd.ExcelFile(file)
+            sheets = excel_file.sheet_names
+            if sheet in sheets:
+                df = excel_file.parse(sheet_name = sheet)
+                df_total = df_total.append(df)
+
+        df_total.to_excel(xlsxWriter,sheet,index=False)
+
+    xlsxWriter.save()

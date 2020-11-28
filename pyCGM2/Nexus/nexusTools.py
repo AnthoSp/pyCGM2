@@ -3,7 +3,11 @@
 import numpy as np
 import logging
 
-from pyCGM2 import btk
+try: 
+    from pyCGM2 import btk
+except:
+    logging.info("[pyCGM2] pyCGM2-embedded btk not imported")
+    import btk
 
 
 def _setPointData(ftr,framecount,ff,values):
@@ -23,12 +27,24 @@ def _setPointData(ftr,framecount,ff,values):
 
     return data,exists
 
+def getActiveSubject(NEXUS):
 
+    names, templates, active = NEXUS.GetSubjectInfo()
+    if active.count(True)>1:
+        raise Exception("[pyCGM2] : two subjects are activated. Select one only")
+
+    for i in range(0,len(names)):
+        if active[i]:
+            return names[i]
+
+
+    return names, templates, active
 
 def checkActivatedSubject(NEXUS,subjectNames):
     """
     Note : function should be improved in Nexus API by Vicon
     """
+    logging.warning("This method is deprecated. prefer getActiveSubject now")
 
     subjectMarkerWithTraj=dict()
     for subject in subjectNames:

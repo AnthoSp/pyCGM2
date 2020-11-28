@@ -1,16 +1,12 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import pandas as pd
-import logging
-import matplotlib.pyplot as plt
+
 from collections import OrderedDict
-
 from pyCGM2.Tools import exportTools
-from pyCGM2.Signal.detect_peaks import detect_peaks
-from pyCGM2.Math import derivation
 
-from pyCGM2.Processing import analysisHandler
-from pyCGM2.Tools import exportTools
+
+
 # --- FILTER ----
 
 
@@ -87,16 +83,21 @@ class AmplitudesProcedure(object):
 
 
     def __construcPandasSerie(self,emgLabel,muscle,context, cycleIndex,phase,
-                              value):
-        iDict = OrderedDict([('Label', emgLabel),
-                     ('Muscle', muscle),
+                              value,procedure):
+        iDict = OrderedDict([('ChannelLabel', emgLabel),
+                     ('Label', muscle),
                      ('EventContext', context),
                      ('Cycle', cycleIndex),
                      ('Phase', phase),
-                     ('Amplitude', value)])
+                     ('Procedure', procedure),
+                     ('Value', value)])
         return pd.Series(iDict)
 
     def __getAmplitudebyPhase(self,analysisInstance,emglabel,muscle,context):
+
+        procedure = "Amplitude"
+        muscle = context[0]+muscle
+
 
         stanceValues =   analysisInstance.emgStats.pst['stancePhase', context]['values']
         doubleStance1Values =   analysisInstance.emgStats.pst['doubleStance1', context]['values']
@@ -116,7 +117,8 @@ class AmplitudesProcedure(object):
             serie = self.__construcPandasSerie(emglabel,muscle,context,
                                                int(i),
                                                "cycle",
-                                               res_cycle)
+                                               res_cycle,
+                                               procedure)
             series.append(serie)
 
             # stance
@@ -127,7 +129,8 @@ class AmplitudesProcedure(object):
             serie = self.__construcPandasSerie(emglabel,muscle,context,
                                                int(i),
                                                "stance",
-                                               res_stance)
+                                               res_stance,
+                                               procedure)
             series.append(serie)
 
 
@@ -139,7 +142,8 @@ class AmplitudesProcedure(object):
             serie = self.__construcPandasSerie(emglabel,muscle,context,
                                                int(i),
                                                "swing",
-                                               res_swing)
+                                               res_swing,
+                                               procedure)
             series.append(serie)
 
 
@@ -151,7 +155,8 @@ class AmplitudesProcedure(object):
             serie = self.__construcPandasSerie(emglabel,muscle,context,
                                                int(i),
                                                "doubleStance1",
-                                               res_d1)
+                                               res_d1,
+                                               procedure)
             series.append(serie)
 
             # double stance2
@@ -162,7 +167,8 @@ class AmplitudesProcedure(object):
             serie = self.__construcPandasSerie(emglabel,muscle,context,
                                                int(i),
                                                "doubleStance2",
-                                               res_d2)
+                                               res_d2,
+                                               procedure)
             series.append(serie)
 
             lim0 = int(doubleStance1Values[i]); lim1 = int(doubleStance2Values[i])
@@ -172,7 +178,8 @@ class AmplitudesProcedure(object):
             serie = self.__construcPandasSerie(emglabel,muscle,context,
                                                int(i),
                                                "singleStance",
-                                               res_single)
+                                               res_single,
+                                               procedure)
             series.append(serie)
 
 

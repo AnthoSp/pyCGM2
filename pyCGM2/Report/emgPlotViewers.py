@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-import scipy as sp
 import logging
 
 import matplotlib.pyplot as plt
@@ -8,11 +7,8 @@ import matplotlib.pyplot as plt
 # pyCGM2
 import pyCGM2
 from pyCGM2.Report import plot, plotViewers, plotUtils
-from pyCGM2.EMG import normalActivation
-from pyCGM2.Processing import cycle
 
-from pyCGM2 import ma
-from pyCGM2.ma import io
+
 
 
 
@@ -21,7 +17,7 @@ class TemporalEmgPlotViewer(plotViewers.AbstractPlotViewer):
 
     """
 
-    def __init__(self,iTrial,pointLabelSuffix=None):
+    def __init__(self,iAcq,pointLabelSuffix=None):
 
         """
             :Parameters:
@@ -29,18 +25,20 @@ class TemporalEmgPlotViewer(plotViewers.AbstractPlotViewer):
         """
 
 
-        super(TemporalEmgPlotViewer, self).__init__(iTrial)
+        super(TemporalEmgPlotViewer, self).__init__(iAcq)
 
         self.emgs = list()
         self.rectify = False
 
-        self.m_trial = self.m_input
-        if isinstance(self.m_input,ma.Trial):
+        self.m_acq = self.m_input
+        if isinstance(self.m_input,pyCGM2.btk.btkAcquisition):
             pass
         else:
             logging.error( "[pyCGM2] error input object type. must be a ma.Trial")
 
         self.m_pointLabelSuffix = pointLabelSuffix
+
+        self.m_ignoreNormalActivity = False
 
 
     def setEmgs(self,emgs):
@@ -91,10 +89,11 @@ class TemporalEmgPlotViewer(plotViewers.AbstractPlotViewer):
     def setNormalActivationLabels(self, labels):
         self.m_normalActivEmgs = labels
 
+    def ignoreNormalActivty(self, bool):
+        self.m_ignoreNormalActivity = bool
 
     def __setData(self):
         #suffixPlus = "_" + self.m_pointLabelSuffix if self.m_pointLabelSuffix!="" else ""
-
         for i in range(0, len(self.emgs)):
             label = self.emgs[i]["Label"]+"_Rectify" if self.rectify  else self.emgs[i]["Label"]+"_HPF"
             context = self.emgs[i]["Context"]
@@ -102,10 +101,12 @@ class TemporalEmgPlotViewer(plotViewers.AbstractPlotViewer):
 
             normalActivationLabel = self.m_normalActivEmgs[i]
 
-            plot.temporalPlot(self.fig.axes[i],self.m_trial,
+            plot.temporalPlot(self.fig.axes[i],self.m_acq,
                                     label,0,
                                     color=colorContext)
-            plot.addTemporalNormalActivationLayer(self.fig.axes[i],self.m_trial,self.m_normalActivEmgs[i],context)
+
+            if not self.m_ignoreNormalActivity:
+                plot.addTemporalNormalActivationLayer(self.fig.axes[i],self.m_acq,self.m_normalActivEmgs[i],context)
 
 
     def plotPanel(self):

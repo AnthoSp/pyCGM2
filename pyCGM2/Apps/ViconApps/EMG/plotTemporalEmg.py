@@ -28,7 +28,6 @@ from pyCGM2.Lib import analysis
 from pyCGM2.Lib import plot
 from pyCGM2.Report import normativeDatasets
 
-from pyCGM2.Tools import  trialTools
 from pyCGM2.Nexus import nexusFilters,nexusTools
 from pyCGM2.Configurator import EmgManager
 import ViconNexus
@@ -40,6 +39,7 @@ def main():
     parser.add_argument('-bpf', '--BandpassFrequencies', nargs='+',help='bandpass filter')
     parser.add_argument('-ecf','--EnvelopLowpassFrequency', type=int, help='cutoff frequency for emg envelops')
     parser.add_argument('-r','--raw', action='store_true', help='rectified data')
+    parser.add_argument('-ina','--ignoreNormalActivity', action='store_true', help='do not display normal activity')
     args = parser.parse_args()
 
     NEXUS = ViconNexus.ViconNexus()
@@ -85,7 +85,7 @@ def main():
 
         # --------------------------SUBJECT ------------------------------------
         subjects = NEXUS.GetSubjectNames()
-        subject = nexusTools.checkActivatedSubject(NEXUS,subjects)
+        subject = nexusTools.getActiveSubject(NEXUS)
 
 
         # btk Acquisition
@@ -100,12 +100,8 @@ def main():
             highPassFrequencies=bandPassFilterFrequencies,
             envelopFrequency=envelopCutOffFrequency) # high pass then low pass for all c3ds
 
-        openmaTrial = trialTools.convertBtkAcquisition(acq)
-
-
-
         plot.plotTemporalEMG(DATA_PATH,inputFile, EMG_LABELS,EMG_MUSCLES, EMG_CONTEXT, NORMAL_ACTIVITIES,exportPdf=True,rectify=rectifyBool,
-                            openmaTrial=openmaTrial)
+                            btkAcq=acq,ignoreNormalActivity= args.ignoreNormalActivity)
 
     else:
         raise Exception("NO Nexus connection. Turn on Nexus")

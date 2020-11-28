@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-import matplotlib.pyplot as plt
 import logging
-import numpy as np
 
-from pyCGM2 import btk
-
+try: 
+    from pyCGM2 import btk
+except:
+    logging.info("[pyCGM2] pyCGM2-embedded btk not imported")
+    import btk
 from pyCGM2.Tools import  btkTools
 from pyCGM2.Signal import detect_peaks
 from pyCGM2.Processing import progressionFrame

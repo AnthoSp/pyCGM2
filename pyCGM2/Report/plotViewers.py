@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 import pyCGM2
 from pyCGM2 import enums
 from pyCGM2.Report import plot
-from pyCGM2 import ma
 
 
 
@@ -142,7 +141,7 @@ class SpatioTemporalPlotViewer(AbstractPlotViewer):
                 self.fig.axes[i].axvline(x=(plusStd), color= "green", linestyle = "dashed")
                 i+=1
 
-
+        return self.fig
 
 class GpsMapPlotViewer(AbstractPlotViewer):
     """
@@ -243,6 +242,8 @@ class GpsMapPlotViewer(AbstractPlotViewer):
         self.__setLayer()
         self.__setData()
 
+        return self.fig
+
 class NormalizedKinematicsPlotViewer(AbstractPlotViewer):
     """
 
@@ -283,9 +284,9 @@ class NormalizedKinematicsPlotViewer(AbstractPlotViewer):
 
         self.fig = plt.figure(figsize=(8.27,11.69), dpi=100,facecolor="white")
 
-        if self.m_concretePlotFunction.func_name in ["descriptivePlot","gaitDescriptivePlot"]:
+        if self.m_concretePlotFunction.__name__ in ["descriptivePlot","gaitDescriptivePlot"]:
             title=u""" Descriptive Time-normalized Kinematics \n """
-        elif self.m_concretePlotFunction.func_name in ["consistencyPlot","gaitConsistencyPlot"]:
+        elif self.m_concretePlotFunction.__name__ in ["consistencyPlot","gaitConsistencyPlot"]:
             title=u""" Consistency Time-normalized Kinematics \n """
         else :
             title=u"""\n"""
@@ -440,7 +441,7 @@ class NormalizedKinematicsPlotViewer(AbstractPlotViewer):
                  - `iNormativeDataSet` (a class of the pyCGM2.Report.normativeDataset module) - normative gait dataset from pyCGM2.Report.normativeDatabaseProcedure module
 
         """
-        iNormativeDataSet.constructNormativeData()
+        # iNormativeDataSet.constructNormativeData()
         self.m_normativeData = iNormativeDataSet.data
 
     def __setData(self):
@@ -674,70 +675,207 @@ class NormalizedKinematicsPlotViewer(AbstractPlotViewer):
         self.__setData()
 
         if self.m_normativeData is not None:
-
             if self.m_bodyPart == enums.BodyPartPlot.LowerLimb:
-                self.fig.axes[0].fill_between(np.linspace(0,100,51),
-                    self.m_normativeData["Pelvis.Angles"]["mean"][:,0]-self.m_normativeData["Pelvis.Angles"]["sd"][:,0],
-                    self.m_normativeData["Pelvis.Angles"]["mean"][:,0]+self.m_normativeData["Pelvis.Angles"]["sd"][:,0],
-                    facecolor="green", alpha=0.5,linewidth=0)
 
-                self.fig.axes[1].fill_between(np.linspace(0,100,51),
-                    self.m_normativeData["Pelvis.Angles"]["mean"][:,1]-self.m_normativeData["Pelvis.Angles"]["sd"][:,1],
-                    self.m_normativeData["Pelvis.Angles"]["mean"][:,1]+self.m_normativeData["Pelvis.Angles"]["sd"][:,1],
-                    facecolor="green", alpha=0.5,linewidth=0)
+                if "PelvisAngles" in self.m_normativeData.keys():
+                    self.fig.axes[0].fill_between(np.linspace(0,100,self.m_normativeData["PelvisAngles"]["mean"].shape[0]),
+                        self.m_normativeData["PelvisAngles"]["mean"][:,0]-self.m_normativeData["PelvisAngles"]["sd"][:,0],
+                        self.m_normativeData["PelvisAngles"]["mean"][:,0]+self.m_normativeData["PelvisAngles"]["sd"][:,0],
+                        facecolor="green", alpha=0.5,linewidth=0)
 
-                self.fig.axes[2].fill_between(np.linspace(0,100,51),
-                    self.m_normativeData["Pelvis.Angles"]["mean"][:,2]-self.m_normativeData["Pelvis.Angles"]["sd"][:,2],
-                    self.m_normativeData["Pelvis.Angles"]["mean"][:,2]+self.m_normativeData["Pelvis.Angles"]["sd"][:,2],
-                    facecolor="green", alpha=0.5,linewidth=0)
+                    self.fig.axes[1].fill_between(np.linspace(0,100,self.m_normativeData["PelvisAngles"]["mean"].shape[0]),
+                        self.m_normativeData["PelvisAngles"]["mean"][:,1]-self.m_normativeData["PelvisAngles"]["sd"][:,1],
+                        self.m_normativeData["PelvisAngles"]["mean"][:,1]+self.m_normativeData["PelvisAngles"]["sd"][:,1],
+                        facecolor="green", alpha=0.5,linewidth=0)
 
+                    self.fig.axes[2].fill_between(np.linspace(0,100,self.m_normativeData["PelvisAngles"]["mean"].shape[0]),
+                        self.m_normativeData["PelvisAngles"]["mean"][:,2]-self.m_normativeData["PelvisAngles"]["sd"][:,2],
+                        self.m_normativeData["PelvisAngles"]["mean"][:,2]+self.m_normativeData["PelvisAngles"]["sd"][:,2],
+                        facecolor="green", alpha=0.5,linewidth=0)
 
-                self.fig.axes[3].fill_between(np.linspace(0,100,51),
-                    self.m_normativeData["Hip.Angles"]["mean"][:,0]-self.m_normativeData["Hip.Angles"]["sd"][:,0],
-                    self.m_normativeData["Hip.Angles"]["mean"][:,0]+self.m_normativeData["Hip.Angles"]["sd"][:,0],
-                    facecolor="green", alpha=0.5,linewidth=0)
+                if "HipAngles" in self.m_normativeData.keys():
+                    self.fig.axes[3].fill_between(np.linspace(0,100,self.m_normativeData["HipAngles"]["mean"].shape[0]),
+                        self.m_normativeData["HipAngles"]["mean"][:,0]-self.m_normativeData["HipAngles"]["sd"][:,0],
+                        self.m_normativeData["HipAngles"]["mean"][:,0]+self.m_normativeData["HipAngles"]["sd"][:,0],
+                        facecolor="green", alpha=0.5,linewidth=0)
 
-                self.fig.axes[4].fill_between(np.linspace(0,100,51),
-                    self.m_normativeData["Hip.Angles"]["mean"][:,1]-self.m_normativeData["Hip.Angles"]["sd"][:,1],
-                    self.m_normativeData["Hip.Angles"]["mean"][:,1]+self.m_normativeData["Hip.Angles"]["sd"][:,1],
-                    facecolor="green", alpha=0.5,linewidth=0)
+                    self.fig.axes[4].fill_between(np.linspace(0,100,self.m_normativeData["HipAngles"]["mean"].shape[0]),
+                        self.m_normativeData["HipAngles"]["mean"][:,1]-self.m_normativeData["HipAngles"]["sd"][:,1],
+                        self.m_normativeData["HipAngles"]["mean"][:,1]+self.m_normativeData["HipAngles"]["sd"][:,1],
+                        facecolor="green", alpha=0.5,linewidth=0)
 
-                self.fig.axes[5].fill_between(np.linspace(0,100,51),
-                    self.m_normativeData["Hip.Angles"]["mean"][:,2]-self.m_normativeData["Hip.Angles"]["sd"][:,2],
-                    self.m_normativeData["Hip.Angles"]["mean"][:,2]+self.m_normativeData["Hip.Angles"]["sd"][:,2],
-                    facecolor="green", alpha=0.5,linewidth=0)
+                    self.fig.axes[5].fill_between(np.linspace(0,100,self.m_normativeData["HipAngles"]["mean"].shape[0]),
+                        self.m_normativeData["HipAngles"]["mean"][:,2]-self.m_normativeData["HipAngles"]["sd"][:,2],
+                        self.m_normativeData["HipAngles"]["mean"][:,2]+self.m_normativeData["HipAngles"]["sd"][:,2],
+                        facecolor="green", alpha=0.5,linewidth=0)
 
-                self.fig.axes[6].fill_between(np.linspace(0,100,51),
-                    self.m_normativeData["Knee.Angles"]["mean"][:,0]-self.m_normativeData["Knee.Angles"]["sd"][:,0],
-                    self.m_normativeData["Knee.Angles"]["mean"][:,0]+self.m_normativeData["Knee.Angles"]["sd"][:,0],
-                    facecolor="green", alpha=0.5,linewidth=0)
+                if "KneeAngles" in self.m_normativeData.keys():
+                    self.fig.axes[6].fill_between(np.linspace(0,100,self.m_normativeData["KneeAngles"]["mean"].shape[0]),
+                        self.m_normativeData["KneeAngles"]["mean"][:,0]-self.m_normativeData["KneeAngles"]["sd"][:,0],
+                        self.m_normativeData["KneeAngles"]["mean"][:,0]+self.m_normativeData["KneeAngles"]["sd"][:,0],
+                        facecolor="green", alpha=0.5,linewidth=0)
 
-                self.fig.axes[9].fill_between(np.linspace(0,100,51),
-                    self.m_normativeData["Ankle.Angles"]["mean"][:,0]-self.m_normativeData["Ankle.Angles"]["sd"][:,0],
-                    self.m_normativeData["Ankle.Angles"]["mean"][:,0]+self.m_normativeData["Ankle.Angles"]["sd"][:,0],
-                    facecolor="green", alpha=0.5,linewidth=0)
+                    self.fig.axes[7].fill_between(np.linspace(0,100,self.m_normativeData["KneeAngles"]["mean"].shape[0]),
+                        self.m_normativeData["KneeAngles"]["mean"][:,1]-self.m_normativeData["KneeAngles"]["sd"][:,1],
+                        self.m_normativeData["KneeAngles"]["mean"][:,1]+self.m_normativeData["KneeAngles"]["sd"][:,1],
+                        facecolor="green", alpha=0.5,linewidth=0)
 
-                self.fig.axes[11].fill_between(np.linspace(0,100,51),
-                    self.m_normativeData["Foot.Angles"]["mean"][:,2]-self.m_normativeData["Ankle.Angles"]["sd"][:,2],
-                    self.m_normativeData["Foot.Angles"]["mean"][:,2]+self.m_normativeData["Ankle.Angles"]["sd"][:,2],
-                    facecolor="green", alpha=0.5,linewidth=0)
+                    self.fig.axes[8].fill_between(np.linspace(0,100,self.m_normativeData["KneeAngles"]["mean"].shape[0]),
+                        self.m_normativeData["KneeAngles"]["mean"][:,2]-self.m_normativeData["KneeAngles"]["sd"][:,2],
+                        self.m_normativeData["KneeAngles"]["mean"][:,2]+self.m_normativeData["KneeAngles"]["sd"][:,2],
+                        facecolor="green", alpha=0.5,linewidth=0)
+
+                if "AnkleAngles" in self.m_normativeData.keys():
+                    self.fig.axes[9].fill_between(np.linspace(0,100,self.m_normativeData["AnkleAngles"]["mean"].shape[0]),
+                        self.m_normativeData["AnkleAngles"]["mean"][:,0]-self.m_normativeData["AnkleAngles"]["sd"][:,0],
+                        self.m_normativeData["AnkleAngles"]["mean"][:,0]+self.m_normativeData["AnkleAngles"]["sd"][:,0],
+                        facecolor="green", alpha=0.5,linewidth=0)
+
+                    self.fig.axes[10].fill_between(np.linspace(0,100,self.m_normativeData["AnkleAngles"]["mean"].shape[0]),
+                        self.m_normativeData["AnkleAngles"]["mean"][:,1]-self.m_normativeData["AnkleAngles"]["sd"][:,1],
+                        self.m_normativeData["AnkleAngles"]["mean"][:,1]+self.m_normativeData["AnkleAngles"]["sd"][:,1],
+                        facecolor="green", alpha=0.5,linewidth=0)
+
+                if "FootProgressAngles" in self.m_normativeData.keys():
+                    self.fig.axes[11].fill_between(np.linspace(0,100,self.m_normativeData["FootProgressAngles"]["mean"].shape[0]),
+                        self.m_normativeData["FootProgressAngles"]["mean"][:,2]-self.m_normativeData["FootProgressAngles"]["sd"][:,2],
+                        self.m_normativeData["FootProgressAngles"]["mean"][:,2]+self.m_normativeData["FootProgressAngles"]["sd"][:,2],
+                        facecolor="green", alpha=0.5,linewidth=0)
 
             elif self.m_bodyPart == enums.BodyPartPlot.Trunk:
 
-                self.fig.axes[0].fill_between(np.linspace(0,100,51),
-                    self.m_normativeData["Pelvis.Angles"]["mean"][:,0]-self.m_normativeData["Pelvis.Angles"]["sd"][:,0],
-                    self.m_normativeData["Pelvis.Angles"]["mean"][:,0]+self.m_normativeData["Pelvis.Angles"]["sd"][:,0],
-                    facecolor="green", alpha=0.5,linewidth=0)
 
-                self.fig.axes[1].fill_between(np.linspace(0,100,51),
-                    self.m_normativeData["Pelvis.Angles"]["mean"][:,1]-self.m_normativeData["Pelvis.Angles"]["sd"][:,1],
-                    self.m_normativeData["Pelvis.Angles"]["mean"][:,1]+self.m_normativeData["Pelvis.Angles"]["sd"][:,1],
-                    facecolor="green", alpha=0.5,linewidth=0)
+                if "PelvisAngles" in self.m_normativeData.keys():
+                    self.fig.axes[0].fill_between(np.linspace(0,100,self.m_normativeData["PelvisAngles"]["mean"].shape[0]),
+                        self.m_normativeData["PelvisAngles"]["mean"][:,0]-self.m_normativeData["PelvisAngles"]["sd"][:,0],
+                        self.m_normativeData["PelvisAngles"]["mean"][:,0]+self.m_normativeData["PelvisAngles"]["sd"][:,0],
+                        facecolor="green", alpha=0.5,linewidth=0)
 
-                self.fig.axes[2].fill_between(np.linspace(0,100,51),
-                    self.m_normativeData["Pelvis.Angles"]["mean"][:,2]-self.m_normativeData["Pelvis.Angles"]["sd"][:,2],
-                    self.m_normativeData["Pelvis.Angles"]["mean"][:,2]+self.m_normativeData["Pelvis.Angles"]["sd"][:,2],
-                    facecolor="green", alpha=0.5,linewidth=0)
+                    self.fig.axes[1].fill_between(np.linspace(0,100,self.m_normativeData["PelvisAngles"]["mean"].shape[0]),
+                        self.m_normativeData["PelvisAngles"]["mean"][:,1]-self.m_normativeData["PelvisAngles"]["sd"][:,1],
+                        self.m_normativeData["PelvisAngles"]["mean"][:,1]+self.m_normativeData["PelvisAngles"]["sd"][:,1],
+                        facecolor="green", alpha=0.5,linewidth=0)
+
+                    self.fig.axes[2].fill_between(np.linspace(0,100,self.m_normativeData["PelvisAngles"]["mean"].shape[0]),
+                        self.m_normativeData["PelvisAngles"]["mean"][:,2]-self.m_normativeData["PelvisAngles"]["sd"][:,2],
+                        self.m_normativeData["PelvisAngles"]["mean"][:,2]+self.m_normativeData["PelvisAngles"]["sd"][:,2],
+                        facecolor="green", alpha=0.5,linewidth=0)
+
+                if "SpineAngles" in self.m_normativeData.keys():
+                    self.fig.axes[3].fill_between(np.linspace(0,100,self.m_normativeData["SpineAngles"]["mean"].shape[0]),
+                        self.m_normativeData["SpineAngles"]["mean"][:,0]-self.m_normativeData["SpineAngles"]["sd"][:,0],
+                        self.m_normativeData["SpineAngles"]["mean"][:,0]+self.m_normativeData["SpineAngles"]["sd"][:,0],
+                        facecolor="green", alpha=0.5,linewidth=0)
+
+                    self.fig.axes[4].fill_between(np.linspace(0,100,self.m_normativeData["SpineAngles"]["mean"].shape[0]),
+                        self.m_normativeData["SpineAngles"]["mean"][:,1]-self.m_normativeData["SpineAngles"]["sd"][:,1],
+                        self.m_normativeData["SpineAngles"]["mean"][:,1]+self.m_normativeData["SpineAngles"]["sd"][:,1],
+                        facecolor="green", alpha=0.5,linewidth=0)
+
+                    self.fig.axes[5].fill_between(np.linspace(0,100,self.m_normativeData["SpineAngles"]["mean"].shape[0]),
+                        self.m_normativeData["SpineAngles"]["mean"][:,2]-self.m_normativeData["SpineAngles"]["sd"][:,2],
+                        self.m_normativeData["SpineAngles"]["mean"][:,2]+self.m_normativeData["SpineAngles"]["sd"][:,2],
+                        facecolor="green", alpha=0.5,linewidth=0)
+
+                if "ThoraxAngles" in self.m_normativeData.keys():
+                    self.fig.axes[6].fill_between(np.linspace(0,100,self.m_normativeData["ThoraxAngles"]["mean"].shape[0]),
+                        self.m_normativeData["ThoraxAngles"]["mean"][:,0]-self.m_normativeData["ThoraxAngles"]["sd"][:,0],
+                        self.m_normativeData["ThoraxAngles"]["mean"][:,0]+self.m_normativeData["ThoraxAngles"]["sd"][:,0],
+                        facecolor="green", alpha=0.5,linewidth=0)
+
+                    self.fig.axes[7].fill_between(np.linspace(0,100,self.m_normativeData["ThoraxAngles"]["mean"].shape[0]),
+                        self.m_normativeData["ThoraxAngles"]["mean"][:,1]-self.m_normativeData["ThoraxAngles"]["sd"][:,1],
+                        self.m_normativeData["ThoraxAngles"]["mean"][:,1]+self.m_normativeData["ThoraxAngles"]["sd"][:,1],
+                        facecolor="green", alpha=0.5,linewidth=0)
+
+                    self.fig.axes[8].fill_between(np.linspace(0,100,self.m_normativeData["ThoraxAngles"]["mean"].shape[0]),
+                        self.m_normativeData["ThoraxAngles"]["mean"][:,2]-self.m_normativeData["ThoraxAngles"]["sd"][:,2],
+                        self.m_normativeData["ThoraxAngles"]["mean"][:,2]+self.m_normativeData["ThoraxAngles"]["sd"][:,2],
+                        facecolor="green", alpha=0.5,linewidth=0)
+
+                if "NeckAngles" in self.m_normativeData.keys():
+                    self.fig.axes[9].fill_between(np.linspace(0,100,self.m_normativeData["NeckAngles"]["mean"].shape[0]),
+                        self.m_normativeData["NeckAngles"]["mean"][:,0]-self.m_normativeData["NeckAngles"]["sd"][:,0],
+                        self.m_normativeData["NeckAngles"]["mean"][:,0]+self.m_normativeData["NeckAngles"]["sd"][:,0],
+                        facecolor="green", alpha=0.5,linewidth=0)
+
+                    self.fig.axes[10].fill_between(np.linspace(0,100,self.m_normativeData["NeckAngles"]["mean"].shape[0]),
+                        self.m_normativeData["NeckAngles"]["mean"][:,1]-self.m_normativeData["NeckAngles"]["sd"][:,1],
+                        self.m_normativeData["NeckAngles"]["mean"][:,1]+self.m_normativeData["NeckAngles"]["sd"][:,1],
+                        facecolor="green", alpha=0.5,linewidth=0)
+
+                    self.fig.axes[11].fill_between(np.linspace(0,100,self.m_normativeData["NeckAngles"]["mean"].shape[0]),
+                        self.m_normativeData["NeckAngles"]["mean"][:,2]-self.m_normativeData["NeckAngles"]["sd"][:,2],
+                        self.m_normativeData["NeckAngles"]["mean"][:,2]+self.m_normativeData["NeckAngles"]["sd"][:,2],
+                        facecolor="green", alpha=0.5,linewidth=0)
+
+                if "HeadAngles" in self.m_normativeData.keys():
+                    self.fig.axes[12].fill_between(np.linspace(0,100,self.m_normativeData["HeadAngles"]["mean"].shape[0]),
+                        self.m_normativeData["HeadAngles"]["mean"][:,0]-self.m_normativeData["HeadAngles"]["sd"][:,0],
+                        self.m_normativeData["HeadAngles"]["mean"][:,0]+self.m_normativeData["HeadAngles"]["sd"][:,0],
+                        facecolor="green", alpha=0.5,linewidth=0)
+
+                    self.fig.axes[13].fill_between(np.linspace(0,100,self.m_normativeData["HeadAngles"]["mean"].shape[0]),
+                        self.m_normativeData["HeadAngles"]["mean"][:,1]-self.m_normativeData["HeadAngles"]["sd"][:,1],
+                        self.m_normativeData["HeadAngles"]["mean"][:,1]+self.m_normativeData["HeadAngles"]["sd"][:,1],
+                        facecolor="green", alpha=0.5,linewidth=0)
+
+                    self.fig.axes[14].fill_between(np.linspace(0,100,self.m_normativeData["HeadAngles"]["mean"].shape[0]),
+                        self.m_normativeData["HeadAngles"]["mean"][:,2]-self.m_normativeData["HeadAngles"]["sd"][:,2],
+                        self.m_normativeData["HeadAngles"]["mean"][:,2]+self.m_normativeData["HeadAngles"]["sd"][:,2],
+                        facecolor="green", alpha=0.5,linewidth=0)
+
+            elif self.m_bodyPart == enums.BodyPartPlot.UpperLimb:
+
+
+                if "ShoulderAngles" in self.m_normativeData.keys():
+                    self.fig.axes[0].fill_between(np.linspace(0,100,self.m_normativeData["ShoulderAngles"]["mean"].shape[0]),
+                        self.m_normativeData["ShoulderAngles"]["mean"][:,0]-self.m_normativeData["ShoulderAngles"]["sd"][:,0],
+                        self.m_normativeData["ShoulderAngles"]["mean"][:,0]+self.m_normativeData["ShoulderAngles"]["sd"][:,0],
+                        facecolor="green", alpha=0.5,linewidth=0)
+
+                    self.fig.axes[1].fill_between(np.linspace(0,100,self.m_normativeData["ShoulderAngles"]["mean"].shape[0]),
+                        self.m_normativeData["ShoulderAngles"]["mean"][:,1]-self.m_normativeData["ShoulderAngles"]["sd"][:,1],
+                        self.m_normativeData["ShoulderAngles"]["mean"][:,1]+self.m_normativeData["ShoulderAngles"]["sd"][:,1],
+                        facecolor="green", alpha=0.5,linewidth=0)
+
+                    self.fig.axes[2].fill_between(np.linspace(0,100,self.m_normativeData["ShoulderAngles"]["mean"].shape[0]),
+                        self.m_normativeData["ShoulderAngles"]["mean"][:,2]-self.m_normativeData["ShoulderAngles"]["sd"][:,2],
+                        self.m_normativeData["ShoulderAngles"]["mean"][:,2]+self.m_normativeData["ShoulderAngles"]["sd"][:,2],
+                        facecolor="green", alpha=0.5,linewidth=0)
+
+                if "ElbowAngles" in self.m_normativeData.keys():
+                    self.fig.axes[3].fill_between(np.linspace(0,100,self.m_normativeData["ElbowAngles"]["mean"].shape[0]),
+                        self.m_normativeData["ElbowAngles"]["mean"][:,0]-self.m_normativeData["ElbowAngles"]["sd"][:,0],
+                        self.m_normativeData["ElbowAngles"]["mean"][:,0]+self.m_normativeData["ElbowAngles"]["sd"][:,0],
+                        facecolor="green", alpha=0.5,linewidth=0)
+
+                    # self.fig.axes[4].fill_between(np.linspace(0,100,self.m_normativeData["ElbowAngles"]["mean"].shape[0]),
+                    #     self.m_normativeData["ElbowAngles"]["mean"][:,1]-self.m_normativeData["ElbowAngles"]["sd"][:,1],
+                    #     self.m_normativeData["ElbowAngles"]["mean"][:,1]+self.m_normativeData["ElbowAngles"]["sd"][:,1],
+                    #     facecolor="green", alpha=0.5,linewidth=0)
+                    #
+                    # self.fig.axes[5].fill_between(np.linspace(0,100,self.m_normativeData["ElbowAngles"]["mean"].shape[0]),
+                    #     self.m_normativeData["ElbowAngles"]["mean"][:,2]-self.m_normativeData["ElbowAngles"]["sd"][:,2],
+                    #     self.m_normativeData["ElbowAngles"]["mean"][:,2]+self.m_normativeData["ElbowAngles"]["sd"][:,2],
+                    #     facecolor="green", alpha=0.5,linewidth=0)
+
+
+                if "WristAngles" in self.m_normativeData.keys():
+                    self.fig.axes[6].fill_between(np.linspace(0,100,self.m_normativeData["WristAngles"]["mean"].shape[0]),
+                        self.m_normativeData["WristAngles"]["mean"][:,0]-self.m_normativeData["WristAngles"]["sd"][:,0],
+                        self.m_normativeData["WristAngles"]["mean"][:,0]+self.m_normativeData["WristAngles"]["sd"][:,0],
+                        facecolor="green", alpha=0.5,linewidth=0)
+
+                    self.fig.axes[7].fill_between(np.linspace(0,100,self.m_normativeData["WristAngles"]["mean"].shape[0]),
+                        self.m_normativeData["WristAngles"]["mean"][:,1]-self.m_normativeData["WristAngles"]["sd"][:,1],
+                        self.m_normativeData["WristAngles"]["mean"][:,1]+self.m_normativeData["WristAngles"]["sd"][:,1],
+                        facecolor="green", alpha=0.5,linewidth=0)
+
+                    self.fig.axes[8].fill_between(np.linspace(0,100,self.m_normativeData["WristAngles"]["mean"].shape[0]),
+                        self.m_normativeData["WristAngles"]["mean"][:,2]-self.m_normativeData["WristAngles"]["sd"][:,2],
+                        self.m_normativeData["WristAngles"]["mean"][:,2]+self.m_normativeData["WristAngles"]["sd"][:,2],
+                        facecolor="green", alpha=0.5,linewidth=0)
 
         return self.fig
 
@@ -746,7 +884,7 @@ class TemporalKinematicsPlotViewer(AbstractPlotViewer):
 
     """
 
-    def __init__(self,iTrial,pointLabelSuffix=None,bodyPart=enums.BodyPartPlot.LowerLimb):
+    def __init__(self,iAcq,pointLabelSuffix=None,bodyPart=enums.BodyPartPlot.LowerLimb):
 
         """
             :Parameters:
@@ -754,10 +892,10 @@ class TemporalKinematicsPlotViewer(AbstractPlotViewer):
         """
 
 
-        super(TemporalKinematicsPlotViewer, self).__init__(iTrial)
+        super(TemporalKinematicsPlotViewer, self).__init__(iAcq)
 
-        self.m_trial = self.m_input
-        if isinstance(self.m_input,ma.Trial):
+        self.m_acq = self.m_input
+        if isinstance(self.m_input,pyCGM2.btk.btkAcquisition):
             pass
         else:
             logging.error( "[pyCGM2] error input object type. must be a ma.Trial")
@@ -911,177 +1049,177 @@ class TemporalKinematicsPlotViewer(AbstractPlotViewer):
 
 
         if self.m_bodyPart == enums.BodyPartPlot.LowerLimb:
-            plot.temporalPlot(self.fig.axes[0],self.m_trial,
+            plot.temporalPlot(self.fig.axes[0],self.m_acq,
                                     "LPelvisAngles",0,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[1],self.m_trial,
+            plot.temporalPlot(self.fig.axes[1],self.m_acq,
                             "LPelvisAngles",1,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[2],self.m_trial,
+            plot.temporalPlot(self.fig.axes[2],self.m_acq,
                                     "LPelvisAngles",2,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[3],self.m_trial,
+            plot.temporalPlot(self.fig.axes[3],self.m_acq,
                                     "LHipAngles",0,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[4],self.m_trial,
+            plot.temporalPlot(self.fig.axes[4],self.m_acq,
                                     "LHipAngles",1,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[5],self.m_trial,
+            plot.temporalPlot(self.fig.axes[5],self.m_acq,
                                     "LHipAngles",2,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[6],self.m_trial,
+            plot.temporalPlot(self.fig.axes[6],self.m_acq,
                                     "LKneeAngles",0,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[7],self.m_trial,
+            plot.temporalPlot(self.fig.axes[7],self.m_acq,
                                     "LKneeAngles",1,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[8],self.m_trial,
+            plot.temporalPlot(self.fig.axes[8],self.m_acq,
                                     "LKneeAngles",2,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[9],self.m_trial,
+            plot.temporalPlot(self.fig.axes[9],self.m_acq,
                                     "LAnkleAngles",0,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[10],self.m_trial,
+            plot.temporalPlot(self.fig.axes[10],self.m_acq,
                                     "LAnkleAngles",1,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[11],self.m_trial,
+            plot.temporalPlot(self.fig.axes[11],self.m_acq,
                                     "LFootProgressAngles",2,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[12],self.m_trial,
+            plot.temporalPlot(self.fig.axes[12],self.m_acq,
                                     "LForeFootAngles",0,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[13],self.m_trial,
+            plot.temporalPlot(self.fig.axes[13],self.m_acq,
                                     "LForeFootAngles",1,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[14],self.m_trial,
+            plot.temporalPlot(self.fig.axes[14],self.m_acq,
                                     "LForeFootAngles",2,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
 
 
-            plot.temporalPlot(self.fig.axes[0],self.m_trial,
+            plot.temporalPlot(self.fig.axes[0],self.m_acq,
                                     "RPelvisAngles",0,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[1],self.m_trial,
+            plot.temporalPlot(self.fig.axes[1],self.m_acq,
                             "RPelvisAngles",1,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[2],self.m_trial,
+            plot.temporalPlot(self.fig.axes[2],self.m_acq,
                                     "RPelvisAngles",2,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[3],self.m_trial,
+            plot.temporalPlot(self.fig.axes[3],self.m_acq,
                                     "RHipAngles",0,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[4],self.m_trial,
+            plot.temporalPlot(self.fig.axes[4],self.m_acq,
                                     "RHipAngles",1,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[5],self.m_trial,
+            plot.temporalPlot(self.fig.axes[5],self.m_acq,
                                     "RHipAngles",2,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[6],self.m_trial,
+            plot.temporalPlot(self.fig.axes[6],self.m_acq,
                                     "RKneeAngles",0,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[7],self.m_trial,
+            plot.temporalPlot(self.fig.axes[7],self.m_acq,
                                     "RKneeAngles",1,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[8],self.m_trial,
+            plot.temporalPlot(self.fig.axes[8],self.m_acq,
                                     "RKneeAngles",2,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[9],self.m_trial,
+            plot.temporalPlot(self.fig.axes[9],self.m_acq,
                                     "RAnkleAngles",0,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[10],self.m_trial,
+            plot.temporalPlot(self.fig.axes[10],self.m_acq,
                                     "RAnkleAngles",1,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[11],self.m_trial,
+            plot.temporalPlot(self.fig.axes[11],self.m_acq,
                                     "RFootProgressAngles",2,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[12],self.m_trial,
+            plot.temporalPlot(self.fig.axes[12],self.m_acq,
                                     "RForeFootAngles",0,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[13],self.m_trial,
+            plot.temporalPlot(self.fig.axes[13],self.m_acq,
                                     "RForeFootAngles",1,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[14],self.m_trial,
+            plot.temporalPlot(self.fig.axes[14],self.m_acq,
                                     "RForeFootAngles",2,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
 
         if self.m_bodyPart == enums.BodyPartPlot.Trunk:
 
-            plot.temporalPlot(self.fig.axes[0],self.m_trial,
+            plot.temporalPlot(self.fig.axes[0],self.m_acq,
                                     "LPelvisAngles",0,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[1],self.m_trial,
+            plot.temporalPlot(self.fig.axes[1],self.m_acq,
                             "LPelvisAngles",1,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[2],self.m_trial,
+            plot.temporalPlot(self.fig.axes[2],self.m_acq,
                                     "LPelvisAngles",2,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[3],self.m_trial,
+            plot.temporalPlot(self.fig.axes[3],self.m_acq,
                                     "LSpineAngles",0,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[4],self.m_trial,
+            plot.temporalPlot(self.fig.axes[4],self.m_acq,
                                     "LSpineAngles",1,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[5],self.m_trial,
+            plot.temporalPlot(self.fig.axes[5],self.m_acq,
                                     "LSpineAngles",2,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[6],self.m_trial,
+            plot.temporalPlot(self.fig.axes[6],self.m_acq,
                                     "LThoraxAngles",0,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[7],self.m_trial,
+            plot.temporalPlot(self.fig.axes[7],self.m_acq,
                                     "LThoraxAngles",1,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[8],self.m_trial,
+            plot.temporalPlot(self.fig.axes[8],self.m_acq,
                                     "LThoraxAngles",2,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
 
-            plot.temporalPlot(self.fig.axes[9],self.m_trial,
+            plot.temporalPlot(self.fig.axes[9],self.m_acq,
                                     "LNeckAngles",0,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[10],self.m_trial,
+            plot.temporalPlot(self.fig.axes[10],self.m_acq,
                                     "LNeckAngles",1,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[11],self.m_trial,
+            plot.temporalPlot(self.fig.axes[11],self.m_acq,
                                     "LNeckAngles",2,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[12],self.m_trial,
+            plot.temporalPlot(self.fig.axes[12],self.m_acq,
                                     "LHeadAngles",0,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[13],self.m_trial,
+            plot.temporalPlot(self.fig.axes[13],self.m_acq,
                                     "LHeadAngles",1,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[14],self.m_trial,
+            plot.temporalPlot(self.fig.axes[14],self.m_acq,
                                     "LHeadAngles",2,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
 
 
 
-            plot.temporalPlot(self.fig.axes[0],self.m_trial,
+            plot.temporalPlot(self.fig.axes[0],self.m_acq,
                                     "RPelvisAngles",0,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[1],self.m_trial,
+            plot.temporalPlot(self.fig.axes[1],self.m_acq,
                                     "RPelvisAngles",1,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[2],self.m_trial,
+            plot.temporalPlot(self.fig.axes[2],self.m_acq,
                                     "RPelvisAngles",2,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[3],self.m_trial,
+            plot.temporalPlot(self.fig.axes[3],self.m_acq,
                                     "RSpineAngles",0,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[4],self.m_trial,
+            plot.temporalPlot(self.fig.axes[4],self.m_acq,
                                     "RSpineAngles",1,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[5],self.m_trial,
+            plot.temporalPlot(self.fig.axes[5],self.m_acq,
                                     "RSpineAngles",2,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[6],self.m_trial,
+            plot.temporalPlot(self.fig.axes[6],self.m_acq,
                                     "RThoraxAngles",0,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[7],self.m_trial,
+            plot.temporalPlot(self.fig.axes[7],self.m_acq,
                                     "RThoraxAngles",1,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[8],self.m_trial,
+            plot.temporalPlot(self.fig.axes[8],self.m_acq,
                                     "RThoraxAngles",2,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
 
-            plot.temporalPlot(self.fig.axes[9],self.m_trial,
+            plot.temporalPlot(self.fig.axes[9],self.m_acq,
                                     "RNeckAngles",0,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[10],self.m_trial,
+            plot.temporalPlot(self.fig.axes[10],self.m_acq,
                                     "RNeckAngles",1,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[11],self.m_trial,
+            plot.temporalPlot(self.fig.axes[11],self.m_acq,
                                     "RNeckAngles",2,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[12],self.m_trial,
+            plot.temporalPlot(self.fig.axes[12],self.m_acq,
                                     "RHeadAngles",0,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[13],self.m_trial,
+            plot.temporalPlot(self.fig.axes[13],self.m_acq,
                                     "RHeadAngles",1,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[14],self.m_trial,
+            plot.temporalPlot(self.fig.axes[14],self.m_acq,
                                     "RHeadAngles",2,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
 
 
         if self.m_bodyPart == enums.BodyPartPlot.UpperLimb:
 
-            plot.temporalPlot(self.fig.axes[0],self.m_trial,
+            plot.temporalPlot(self.fig.axes[0],self.m_acq,
                                     "LShoulderAngles",0,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[1],self.m_trial,
+            plot.temporalPlot(self.fig.axes[1],self.m_acq,
                             "LShoulderAngles",1,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[2],self.m_trial,
+            plot.temporalPlot(self.fig.axes[2],self.m_acq,
                                     "LShoulderAngles",2,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[3],self.m_trial,
+            plot.temporalPlot(self.fig.axes[3],self.m_acq,
                                     "LElbowAngles",0,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            # plot.temporalPlot(self.fig.axes[4],self.m_trial,
+            # plot.temporalPlot(self.fig.axes[4],self.m_acq,
             #                         "LElbowAngles",1,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            # plot.temporalPlot(self.fig.axes[5],self.m_trial,
+            # plot.temporalPlot(self.fig.axes[5],self.m_acq,
             #                         "LElbowAngles",2,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[6],self.m_trial,
+            plot.temporalPlot(self.fig.axes[6],self.m_acq,
                                     "LWristAngles",0,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[7],self.m_trial,
+            plot.temporalPlot(self.fig.axes[7],self.m_acq,
                                     "LWristAngles",1,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[8],self.m_trial,
+            plot.temporalPlot(self.fig.axes[8],self.m_acq,
                                     "LWristAngles",2,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
 
 
-            plot.temporalPlot(self.fig.axes[0],self.m_trial,
+            plot.temporalPlot(self.fig.axes[0],self.m_acq,
                                     "RShoulderAngles",0,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[1],self.m_trial,
+            plot.temporalPlot(self.fig.axes[1],self.m_acq,
                                     "RShoulderAngles",1,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[2],self.m_trial,
+            plot.temporalPlot(self.fig.axes[2],self.m_acq,
                                     "RShoulderAngles",2,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[3],self.m_trial,
+            plot.temporalPlot(self.fig.axes[3],self.m_acq,
                                     "RElbowAngles",0,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            # plot.temporalPlot(self.fig.axes[4],self.m_trial,
+            # plot.temporalPlot(self.fig.axes[4],self.m_acq,
             #                         "RElbowAngles",1,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            # plot.temporalPlot(self.fig.axes[5],self.m_trial,
+            # plot.temporalPlot(self.fig.axes[5],self.m_acq,
             #                         "RElbowAngles",2,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[6],self.m_trial,
+            plot.temporalPlot(self.fig.axes[6],self.m_acq,
                                     "RWristAngles",0,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[7],self.m_trial,
+            plot.temporalPlot(self.fig.axes[7],self.m_acq,
                                     "RWristAngles",1,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[8],self.m_trial,
+            plot.temporalPlot(self.fig.axes[8],self.m_acq,
                                     "RWristAngles",2,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
 
 
@@ -1132,9 +1270,9 @@ class NormalizedKineticsPlotViewer(AbstractPlotViewer):
     def __setLayer(self):
 
         self.fig = plt.figure(figsize=(8.27,11.69), dpi=100,facecolor="white")
-        if self.m_concretePlotFunction.func_name in ["descriptivePlot","gaitDescriptivePlot"]:
+        if self.m_concretePlotFunction.__name__ in ["descriptivePlot","gaitDescriptivePlot"]:
             title=u""" Descriptive Time-normalized Kinetics \n """
-        elif self.m_concretePlotFunction.func_name in ["consistencyPlot","gaitConsistencyPlot"]:
+        elif self.m_concretePlotFunction.__name__ in ["consistencyPlot","gaitConsistencyPlot"]:
             title=u""" Consistency Time-normalized Kinetics \n """
         else :
             title=u"""\n"""
@@ -1218,7 +1356,7 @@ class NormalizedKineticsPlotViewer(AbstractPlotViewer):
                  - `iNormativeDataSet` (a class of the pyCGM2.Report.normativeDataset module) - normative gait dataset from pyCGM2.Report.normativeDatabaseProcedure module
 
         """
-        iNormativeDataSet.constructNormativeData()
+        # iNormativeDataSet.constructNormativeData()
         self.m_normativeData = iNormativeDataSet.data
 
     def __setData(self):
@@ -1299,53 +1437,53 @@ class NormalizedKineticsPlotViewer(AbstractPlotViewer):
 
         if self.m_normativeData is not None:
             if self.m_bodyPart == enums.BodyPartPlot.LowerLimb:
-                self.fig.axes[0].fill_between(np.linspace(0,100,51),
-                    self.m_normativeData["Hip.Moment"]["mean"][:,0]-self.m_normativeData["Hip.Moment"]["sd"][:,0],
-                    self.m_normativeData["Hip.Moment"]["mean"][:,0]+self.m_normativeData["Hip.Moment"]["sd"][:,0],
+                self.fig.axes[0].fill_between(np.linspace(0,100,self.m_normativeData["HipMoment"]["mean"].shape[0]),
+                    self.m_normativeData["HipMoment"]["mean"][:,0]-self.m_normativeData["HipMoment"]["sd"][:,0],
+                    self.m_normativeData["HipMoment"]["mean"][:,0]+self.m_normativeData["HipMoment"]["sd"][:,0],
                     facecolor="green", alpha=0.5,linewidth=0)
 
-                self.fig.axes[1].fill_between(np.linspace(0,100,51),
-                    self.m_normativeData["Hip.Moment"]["mean"][:,1]-self.m_normativeData["Hip.Moment"]["sd"][:,1],
-                    self.m_normativeData["Hip.Moment"]["mean"][:,1]+self.m_normativeData["Hip.Moment"]["sd"][:,1],
+                self.fig.axes[1].fill_between(np.linspace(0,100,self.m_normativeData["HipMoment"]["mean"].shape[0]),
+                    self.m_normativeData["HipMoment"]["mean"][:,1]-self.m_normativeData["HipMoment"]["sd"][:,1],
+                    self.m_normativeData["HipMoment"]["mean"][:,1]+self.m_normativeData["HipMoment"]["sd"][:,1],
                     facecolor="green", alpha=0.5,linewidth=0)
 
-                self.fig.axes[3].fill_between(np.linspace(0,100,51),
-                    self.m_normativeData["Hip.Power"]["mean"][:,2]-self.m_normativeData["Hip.Power"]["sd"][:,2],
-                    self.m_normativeData["Hip.Power"]["mean"][:,2]+self.m_normativeData["Hip.Power"]["sd"][:,2],
-                    facecolor="green", alpha=0.5,linewidth=0)
-
-
-                self.fig.axes[4].fill_between(np.linspace(0,100,51),
-                    self.m_normativeData["Knee.Moment"]["mean"][:,0]-self.m_normativeData["Knee.Moment"]["sd"][:,0],
-                    self.m_normativeData["Knee.Moment"]["mean"][:,0]+self.m_normativeData["Knee.Moment"]["sd"][:,0],
-                    facecolor="green", alpha=0.5,linewidth=0)
-
-                self.fig.axes[5].fill_between(np.linspace(0,100,51),
-                    self.m_normativeData["Knee.Moment"]["mean"][:,1]-self.m_normativeData["Knee.Moment"]["sd"][:,1],
-                    self.m_normativeData["Knee.Moment"]["mean"][:,1]+self.m_normativeData["Knee.Moment"]["sd"][:,1],
-                    facecolor="green", alpha=0.5,linewidth=0)
-
-                self.fig.axes[7].fill_between(np.linspace(0,100,51),
-                    self.m_normativeData["Knee.Power"]["mean"][:,2]-self.m_normativeData["Knee.Power"]["sd"][:,2],
-                    self.m_normativeData["Knee.Power"]["mean"][:,2]+self.m_normativeData["Knee.Power"]["sd"][:,2],
+                self.fig.axes[3].fill_between(np.linspace(0,100,self.m_normativeData["HipPower"]["mean"].shape[0]),
+                    self.m_normativeData["HipPower"]["mean"][:,2]-self.m_normativeData["HipPower"]["sd"][:,2],
+                    self.m_normativeData["HipPower"]["mean"][:,2]+self.m_normativeData["HipPower"]["sd"][:,2],
                     facecolor="green", alpha=0.5,linewidth=0)
 
 
-
-                self.fig.axes[8].fill_between(np.linspace(0,100,51),
-                    self.m_normativeData["Ankle.Moment"]["mean"][:,0]-self.m_normativeData["Ankle.Moment"]["sd"][:,0],
-                    self.m_normativeData["Ankle.Moment"]["mean"][:,0]+self.m_normativeData["Ankle.Moment"]["sd"][:,0],
+                self.fig.axes[4].fill_between(np.linspace(0,100,self.m_normativeData["KneeMoment"]["mean"].shape[0]),
+                    self.m_normativeData["KneeMoment"]["mean"][:,0]-self.m_normativeData["KneeMoment"]["sd"][:,0],
+                    self.m_normativeData["KneeMoment"]["mean"][:,0]+self.m_normativeData["KneeMoment"]["sd"][:,0],
                     facecolor="green", alpha=0.5,linewidth=0)
 
-                self.fig.axes[9].fill_between(np.linspace(0,100,51),
-                    self.m_normativeData["Ankle.Moment"]["mean"][:,1]-self.m_normativeData["Ankle.Moment"]["sd"][:,1],
-                    self.m_normativeData["Ankle.Moment"]["mean"][:,1]+self.m_normativeData["Ankle.Moment"]["sd"][:,1],
+                self.fig.axes[5].fill_between(np.linspace(0,100,self.m_normativeData["KneeMoment"]["mean"].shape[0]),
+                    self.m_normativeData["KneeMoment"]["mean"][:,1]-self.m_normativeData["KneeMoment"]["sd"][:,1],
+                    self.m_normativeData["KneeMoment"]["mean"][:,1]+self.m_normativeData["KneeMoment"]["sd"][:,1],
+                    facecolor="green", alpha=0.5,linewidth=0)
+
+                self.fig.axes[7].fill_between(np.linspace(0,100,self.m_normativeData["KneePower"]["mean"].shape[0]),
+                    self.m_normativeData["KneePower"]["mean"][:,2]-self.m_normativeData["KneePower"]["sd"][:,2],
+                    self.m_normativeData["KneePower"]["mean"][:,2]+self.m_normativeData["KneePower"]["sd"][:,2],
                     facecolor="green", alpha=0.5,linewidth=0)
 
 
-                self.fig.axes[11].fill_between(np.linspace(0,100,51),
-                    self.m_normativeData["Ankle.Power"]["mean"][:,2]-self.m_normativeData["Ankle.Power"]["sd"][:,2],
-                    self.m_normativeData["Ankle.Power"]["mean"][:,2]+self.m_normativeData["Ankle.Power"]["sd"][:,2],
+
+                self.fig.axes[8].fill_between(np.linspace(0,100,self.m_normativeData["AnkleMoment"]["mean"].shape[0]),
+                    self.m_normativeData["AnkleMoment"]["mean"][:,0]-self.m_normativeData["AnkleMoment"]["sd"][:,0],
+                    self.m_normativeData["AnkleMoment"]["mean"][:,0]+self.m_normativeData["AnkleMoment"]["sd"][:,0],
+                    facecolor="green", alpha=0.5,linewidth=0)
+
+                self.fig.axes[9].fill_between(np.linspace(0,100,self.m_normativeData["AnkleMoment"]["mean"].shape[0]),
+                    self.m_normativeData["AnkleMoment"]["mean"][:,1]-self.m_normativeData["AnkleMoment"]["sd"][:,1],
+                    self.m_normativeData["AnkleMoment"]["mean"][:,1]+self.m_normativeData["AnkleMoment"]["sd"][:,1],
+                    facecolor="green", alpha=0.5,linewidth=0)
+
+
+                self.fig.axes[11].fill_between(np.linspace(0,100,self.m_normativeData["AnklePower"]["mean"].shape[0]),
+                    self.m_normativeData["AnklePower"]["mean"][:,2]-self.m_normativeData["AnklePower"]["sd"][:,2],
+                    self.m_normativeData["AnklePower"]["mean"][:,2]+self.m_normativeData["AnklePower"]["sd"][:,2],
                     facecolor="green", alpha=0.5,linewidth=0)
 
         return self.fig
@@ -1360,7 +1498,7 @@ class TemporalKineticsPlotViewer(AbstractPlotViewer):
 
     """
 
-    def __init__(self,iTrial,pointLabelSuffix=None,bodyPart=enums.BodyPartPlot.LowerLimb):
+    def __init__(self,iAcq,pointLabelSuffix=None,bodyPart=enums.BodyPartPlot.LowerLimb):
 
         """
             :Parameters:
@@ -1368,10 +1506,10 @@ class TemporalKineticsPlotViewer(AbstractPlotViewer):
         """
 
 
-        super(TemporalKineticsPlotViewer, self).__init__(iTrial)
+        super(TemporalKineticsPlotViewer, self).__init__(iAcq)
 
-        self.m_trial = self.m_input
-        if isinstance(self.m_input,ma.Trial):
+        self.m_acq = self.m_input
+        if isinstance(self.m_input,pyCGM2.btk.btkAcquisition):
             pass
         else:
             logging.error( "[pyCGM2] error input object type. must be a ma.Trial")
@@ -1469,59 +1607,59 @@ class TemporalKineticsPlotViewer(AbstractPlotViewer):
     def __setData(self):
 
         if self.m_bodyPart == enums.BodyPartPlot.LowerLimb:
-            plot.temporalPlot(self.fig.axes[0],self.m_trial,
+            plot.temporalPlot(self.fig.axes[0],self.m_acq,
                                     "LHipMoment",0,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[1],self.m_trial,
+            plot.temporalPlot(self.fig.axes[1],self.m_acq,
                             "LHipMoment",1,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[2],self.m_trial,
+            plot.temporalPlot(self.fig.axes[2],self.m_acq,
                                     "LHipMoment",2,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[3],self.m_trial,
+            plot.temporalPlot(self.fig.axes[3],self.m_acq,
                                     "LHipPower",2,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
 
-            plot.temporalPlot(self.fig.axes[4],self.m_trial,
+            plot.temporalPlot(self.fig.axes[4],self.m_acq,
                                     "LKneeMoment",0,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[5],self.m_trial,
+            plot.temporalPlot(self.fig.axes[5],self.m_acq,
                                     "LKneeMoment",1,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[6],self.m_trial,
+            plot.temporalPlot(self.fig.axes[6],self.m_acq,
                                     "LKneeMoment",2,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[7],self.m_trial,
+            plot.temporalPlot(self.fig.axes[7],self.m_acq,
                                     "LKneePower",2,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
 
-            plot.temporalPlot(self.fig.axes[8],self.m_trial,
+            plot.temporalPlot(self.fig.axes[8],self.m_acq,
                                     "LAnkleMoment",0,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[9],self.m_trial,
+            plot.temporalPlot(self.fig.axes[9],self.m_acq,
                                     "LAnkleMoment",1,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[10],self.m_trial,
+            plot.temporalPlot(self.fig.axes[10],self.m_acq,
                                     "LAnkleMoment",2,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
-            plot.temporalPlot(self.fig.axes[11],self.m_trial,
+            plot.temporalPlot(self.fig.axes[11],self.m_acq,
                                     "LAnklePower",2,pointLabelSuffix=self.m_pointLabelSuffix,color="red")
 
 
-            plot.temporalPlot(self.fig.axes[0],self.m_trial,
+            plot.temporalPlot(self.fig.axes[0],self.m_acq,
                                     "RHipMoment",0,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[1],self.m_trial,
+            plot.temporalPlot(self.fig.axes[1],self.m_acq,
                             "RHipMoment",1,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[2],self.m_trial,
+            plot.temporalPlot(self.fig.axes[2],self.m_acq,
                                     "RHipMoment",2,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[3],self.m_trial,
+            plot.temporalPlot(self.fig.axes[3],self.m_acq,
                                     "RHipPower",2,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
 
-            plot.temporalPlot(self.fig.axes[4],self.m_trial,
+            plot.temporalPlot(self.fig.axes[4],self.m_acq,
                                     "RKneeMoment",0,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[5],self.m_trial,
+            plot.temporalPlot(self.fig.axes[5],self.m_acq,
                                     "RKneeMoment",1,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[6],self.m_trial,
+            plot.temporalPlot(self.fig.axes[6],self.m_acq,
                                     "RKneeMoment",2,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[7],self.m_trial,
+            plot.temporalPlot(self.fig.axes[7],self.m_acq,
                                     "RKneePower",2,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
 
-            plot.temporalPlot(self.fig.axes[8],self.m_trial,
+            plot.temporalPlot(self.fig.axes[8],self.m_acq,
                                     "RAnkleMoment",0,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[9],self.m_trial,
+            plot.temporalPlot(self.fig.axes[9],self.m_acq,
                                     "RAnkleMoment",1,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[10],self.m_trial,
+            plot.temporalPlot(self.fig.axes[10],self.m_acq,
                                     "RAnkleMoment",2,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
-            plot.temporalPlot(self.fig.axes[11],self.m_trial,
+            plot.temporalPlot(self.fig.axes[11],self.m_acq,
                                     "RAnklePower",2,pointLabelSuffix=self.m_pointLabelSuffix,color="blue")
 
 

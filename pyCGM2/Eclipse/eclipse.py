@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-import logging
+# from __future__ import print_function
 import os
-import ConfigParser
+import configparser
 
 import pyCGM2
 from pyCGM2 import enums
 
-from pyCGM2.ForcePlates import forceplates
 from pyCGM2.Tools import btkTools
-from pyCGM2.Utils import files,utils
+from pyCGM2.Utils import files
 from bs4 import BeautifulSoup
 
 
@@ -205,15 +203,15 @@ class EnfReader(object):
 
     def __init__(self, path,enfFile):
 
-        config = ConfigParser.ConfigParser()
+        config = configparser.ConfigParser()
         config.optionxform=str # keep letter case
 
         if not os.path.isfile((path+enfFile)):
-            raise Exception ("[pyCGM2] : enf file (%s) not find"%(utils.str(path+enfFile)))
+            raise Exception ("[pyCGM2] : enf file (%s) not find"%(path+enfFile))
 
         try:
             config.read((path+enfFile))
-        except ConfigParser.ParsingError:
+        except configparser.ParsingError:
             cleanEnf(path,enfFile)
             config.read((path+enfFile))
 

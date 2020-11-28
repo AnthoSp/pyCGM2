@@ -16,17 +16,17 @@ if developMode:
     logging.warning("You have sleected a developer model ( local install)")
 
 
-if sys.maxsize > 2**32:
-    raise Exception ("64-bit python version detected. PyCGM2 requires a 32 bits python version")
+if sys.maxsize < 2**32:
+    raise Exception ("32-bit python version detected. PyCGM2-python3 requires a 64 bits python version")
 
-VERSION ="3.3.0"
+VERSION ="4.0.0"
 
 
 for it in site.getsitepackages():
     if "site-packages" in it:
         SITE_PACKAGE_PATH = it +"\\"
 
-NAME_IN_SITEPACKAGE = "pyCGM2-"+VERSION+"-py2.7.egg"
+NAME_IN_SITEPACKAGE = "pyCGM2-"+VERSION+"-py3.7.egg"
 
 
 MAIN_PYCGM2_PATH = os.getcwd() + "\\"
@@ -49,7 +49,11 @@ NEXUS_PUBLIC_PATH = user_folder+"\\Documents\\Vicon\\Nexus2.x\\"
 NEXUS_PUBLIC_DOCUMENT_VST_PATH = NEXUS_PUBLIC_PATH + "ModelTemplates\\"
 NEXUS_PUBLIC_DOCUMENT_PIPELINE_PATH = NEXUS_PUBLIC_PATH+"Configurations\\Pipelines\\"
 
+def parse_requirements(requirements):
+    with open(requirements) as f:
+        return [l.strip('\n') for l in f if l.strip('\n') and not l.startswith('#')]
 
+reqs = parse_requirements("requirements.txt")
 
 def scanViconTemplatePipeline(sourcePath,desPath,pyCGM2nexusAppsPath):
 
@@ -58,14 +62,13 @@ def scanViconTemplatePipeline(sourcePath,desPath,pyCGM2nexusAppsPath):
     sourcePath = sourcePath[:-1] if sourcePath[-1:]=="\\" else sourcePath
     desPath = desPath[:-1] if desPath[-1:]=="\\" else desPath
     pyCGM2nexusAppsPath = pyCGM2nexusAppsPath[:-1] if pyCGM2nexusAppsPath[-1:]=="\\" else pyCGM2nexusAppsPath
-
-    pyCGM2nexusAppsPath_antislash = string.replace(pyCGM2nexusAppsPath, '\\', '/')
+    pyCGM2nexusAppsPath_antislash = pyCGM2nexusAppsPath.replace('\\', '/')
 
     for file in os.listdir(sourcePath):
         with open(sourcePath+"\\"+file, 'r') as f:
             file_contents = f.read()
 
-        content = string.replace(file_contents, toreplace,pyCGM2nexusAppsPath_antislash)
+        content = file_contents.replace(toreplace,pyCGM2nexusAppsPath_antislash)
 
 
         if not os.path.isfile( desPath +"\\"+ file):
@@ -185,23 +188,10 @@ setup(name = 'pyCGM2',
     packages=find_packages(),
 	include_package_data=True,
     license='CC-BY-SA',
-	install_requires = ['numpy<1.17.0',
-                        'scipy==1.2.1',
-                        'matplotlib<3.0.0',
-                        'pandas ==0.19.1',
-                        'enum34==1.1.6',
-                        'configparser==4.0.2',
-                        'beautifulsoup4==4.8.1',
-                        'pyyaml==5.1.2',
-                        'yamlordereddictloader==0.4.0',
-                        'xlrd==1.2.0',
-                        'lxml==4.4.1',
-                        'openpyxl==2.6.4',
-                        'xlwt==1.3.0',
-                        'pytest==4.6.5'],
+	install_requires = reqs,
     #'qtmWebGaitReport>=0.0.1'],
     classifiers=['Programming Language :: Python',
-                 'Programming Language :: Python :: 2.7',
+                 'Programming Language :: Python :: 3.7',
                  'Operating System :: Microsoft :: Windows',
                  'Natural Language :: English'],
     #scripts=gen_data_files_forScripts("Apps/ViconApps")
@@ -240,6 +230,10 @@ setup(name = 'pyCGM2',
 
                 'Nexus_resetProgramData =  pyCGM2.Apps.ViconApps.Miscellaneous.pyCGM2_resetProgramData:main',
                 'Nexus_check_inputArgs  =  pyCGM2.Apps.ViconApps.Miscellaneous.check_inputArgs:main',
+
+                'pyCGM2-copyPasteCgmSettings  =  pyCGM2.Apps.Commands.commands:copyPasteCgmSettings',
+                'pyCGM2-copyPasteEmgSettings  =  pyCGM2.Apps.Commands.commands:copyPasteEmgSettings',
+
 
                 # QTM
                 'QTM_CGM1_workflow  =  pyCGM2.Apps.QtmApps.CGMi.CGM1_workflow:command',

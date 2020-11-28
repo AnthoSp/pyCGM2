@@ -10,10 +10,9 @@ from pyCGM2 import enums
 from pyCGM2.Processing import exporter
 from pyCGM2.Processing import jointPatterns
 
-from pyCGM2.Tools import trialTools,btkTools
-from pyCGM2 import ma
 
-def makeCGMGaitAnalysis(DATA_PATH,modelledFilenames,emgFilenames,emgChannels,
+def makeCGMGaitAnalysis(DATA_PATH,modelledFilenames,
+                        emgFilenames, emgChannels,
                         subjectInfo=None, experimentalInfo=None,modelInfo=None,
                         pointLabelSuffix=None):
     """
@@ -22,7 +21,6 @@ def makeCGMGaitAnalysis(DATA_PATH,modelledFilenames,emgFilenames,emgChannels,
 
 
     """
-
 
     if modelledFilenames == []: modelledFilenames=None
     if emgFilenames == []: emgFilenames=None
@@ -38,10 +36,10 @@ def makeCGMGaitAnalysis(DATA_PATH,modelledFilenames,emgFilenames,emgChannels,
 
 
     #----cycles
-    cycleBuilder = cycle.GaitCyclesBuilder(spatioTemporalTrials=trialManager.spatioTemporal["Trials"],
-                                           kinematicTrials = trialManager.kinematic["Trials"],
-                                           kineticTrials = trialManager.kinetic["Trials"],
-                                           emgTrials=trialManager.emg["Trials"])
+    cycleBuilder = cycle.GaitCyclesBuilder(spatioTemporalAcqs=trialManager.spatioTemporal["Acqs"],
+                                           kinematicAcqs = trialManager.kinematic["Acqs"],
+                                           kineticAcqs = trialManager.kinetic["Acqs"],
+                                           emgAcqs=trialManager.emg["Acqs"])
 
     cyclefilter = cycle.CyclesFilter()
     cyclefilter.setBuilder(cycleBuilder)
@@ -74,7 +72,7 @@ def makeAnalysis(DATA_PATH,
                     kinematicLabelsDict=None,
                     kineticLabelsDict=None,
                     disableKinetics=False,
-                    openmaTrials=None):
+                    btkAcqs=None):
 
     """
     makeAnalysis : create the pyCGM2.Processing.analysis.Analysis instance
@@ -93,7 +91,7 @@ def makeAnalysis(DATA_PATH,
     :param kinematicLabelsDict [dict]: dictionnary with two entries,Left and Right, pointing to kinematic model outputs you desire processes
     :param kineticLabelsDict [dict]: dictionnary with two entries,Left and Right, pointing to kinetic model outputs you desire processes
     :param disableKinetics [bool]: disable kinetics processing
-    :param openmaTrials [bool]: force the use of a list of openma trials
+    :param btkAcqs [bool]: force the use of a list of openma trials
 
     .. note::
 
@@ -106,8 +104,8 @@ def makeAnalysis(DATA_PATH,
     """
     #---- c3d manager
 
-    if openmaTrials is not None:
-        c3dmanagerProcedure = c3dManager.UniqueOpenmaTrialSetProcedure(DATA_PATH,modelledFilenames,trials=openmaTrials)
+    if btkAcqs is not None:
+        c3dmanagerProcedure = c3dManager.UniqueBtkAcqSetProcedure(DATA_PATH,modelledFilenames,acqs=btkAcqs)
 
     else:
         c3dmanagerProcedure = c3dManager.UniqueC3dSetProcedure(DATA_PATH,modelledFilenames)
@@ -121,16 +119,16 @@ def makeAnalysis(DATA_PATH,
 
     #----cycles
     if type == "Gait":
-        cycleBuilder = cycle.GaitCyclesBuilder(spatioTemporalTrials=trialManager.spatioTemporal["Trials"],
-                                                   kinematicTrials = trialManager.kinematic["Trials"],
-                                                   kineticTrials = trialManager.kinetic["Trials"],
-                                                   emgTrials=trialManager.emg["Trials"])
+        cycleBuilder = cycle.GaitCyclesBuilder(spatioTemporalAcqs=trialManager.spatioTemporal["Acqs"],
+                                                   kinematicAcqs = trialManager.kinematic["Acqs"],
+                                                   kineticAcqs = trialManager.kinetic["Acqs"],
+                                                   emgAcqs=trialManager.emg["Acqs"])
 
     else:
-        cycleBuilder = cycle.CyclesBuilder(spatioTemporalTrials=trialManager.spatioTemporal["Trials"],
-                                                   kinematicTrials = trialManager.kinematic["Trials"],
-                                                   kineticTrials = trialManager.kinetic["Trials"],
-                                                   emgTrials=trialManager.emg["Trials"])
+        cycleBuilder = cycle.CyclesBuilder(spatioTemporalAcqs=trialManager.spatioTemporal["Acqs"],
+                                                   kinematicAcqs = trialManager.kinematic["Acqs"],
+                                                   kineticAcqs = trialManager.kinetic["Acqs"],
+                                                   emgAcqs=trialManager.emg["Acqs"])
 
     cyclefilter = cycle.CyclesFilter()
     cyclefilter.setBuilder(cycleBuilder)
@@ -194,7 +192,7 @@ def exportAnalysis(analysisInstance,DATA_PATH,name, mode="Advanced"):
     exportFilter.setAnalysisInstance(analysisInstance)
     exportFilter.export(name, path=DATA_PATH,excelFormat = "xls",mode = mode)
 
-def processEMG(DATA_PATH, gaitTrials, emgChannels, highPassFrequencies=[20,200],envelopFrequency=6.0, fileSuffix=None):
+def processEMG(DATA_PATH, gaitTrials, emgChannels, highPassFrequencies=[20,200],envelopFrequency=6.0, fileSuffix=None,outDataPath=None):
 
     """
     processEMG_fromC3dFiles : filters emg channels from a list of c3d files
@@ -233,7 +231,10 @@ def processEMG(DATA_PATH, gaitTrials, emgChannels, highPassFrequencies=[20,200],
 
         outFilename = gaitTrial if fileSuffix=="" else gaitTrial+"_"+fileSuffix
 
-        btkTools.smartWriter(acq,DATA_PATH+outFilename)
+        if outDataPath is None:
+            btkTools.smartWriter(acq,DATA_PATH+outFilename)
+        else:
+            btkTools.smartWriter(acq,outDataPath+outFilename)
 
 def processEMG_fromBtkAcq(acq, emgChannels, highPassFrequencies=[20,200],envelopFrequency=6.0):
     """
@@ -265,7 +266,7 @@ def makeEmgAnalysis(DATA_PATH,
                     emgChannels,
                     subjectInfo=None, experimentalInfo=None,
                     type="Gait",
-                    openmaTrials = None
+                    btkAcqs = None
                     ):
 
     """
@@ -281,11 +282,11 @@ def makeEmgAnalysis(DATA_PATH,
     :param subjectInfo [dict]:  dictionnary gathering info about the patient (name,dob...)
     :param experimentalInfo [dict]:  dictionnary gathering info about the  data session (orthosis, gait task,... )
     :param type [str]: process files with gait events if selected type is Gait
-    :param openmaTrials [bool]: force the use of a list of openma trials
+    :param btkAcqs [bool]: force the use of a list of openma trials
     """
 
-    if openmaTrials is not None:
-        c3dmanagerProcedure = c3dManager.UniqueOpenmaTrialSetProcedure(DATA_PATH,processedEmgFiles,trials=openmaTrials)
+    if btkAcqs is not None:
+        c3dmanagerProcedure = c3dManager.UniqueBtkAcqSetProcedure(DATA_PATH,processedEmgFiles,acqs=btkAcqs)
     else:
         c3dmanagerProcedure = c3dManager.UniqueC3dSetProcedure(DATA_PATH,processedEmgFiles)
 
@@ -301,16 +302,16 @@ def makeEmgAnalysis(DATA_PATH,
 
     #----cycles
     if type == "Gait":
-        cycleBuilder = cycle.GaitCyclesBuilder(spatioTemporalTrials=trialManager.spatioTemporal["Trials"],
-                                                   kinematicTrials = trialManager.kinematic["Trials"],
-                                                   kineticTrials = trialManager.kinetic["Trials"],
-                                                   emgTrials=trialManager.emg["Trials"])
+        cycleBuilder = cycle.GaitCyclesBuilder(spatioTemporalAcqs=trialManager.spatioTemporal["Acqs"],
+                                                   kinematicAcqs = trialManager.kinematic["Acqs"],
+                                                   kineticAcqs = trialManager.kinetic["Acqs"],
+                                                   emgAcqs=trialManager.emg["Acqs"])
 
     else:
-        cycleBuilder = cycle.CyclesBuilder(spatioTemporalTrials=trialManager.spatioTemporal["Trials"],
-                                                   kinematicTrials = trialManager.kinematic["Trials"],
-                                                   kineticTrials = trialManager.kinetic["Trials"],
-                                                   emgTrials=trialManager.emg["Trials"])
+        cycleBuilder = cycle.CyclesBuilder(spatioTemporalAcqs=trialManager.spatioTemporal["Acqs"],
+                                                   kinematicAcqs = trialManager.kinematic["Acqs"],
+                                                   kineticAcqs = trialManager.kinetic["Acqs"],
+                                                   emgAcqs=trialManager.emg["Acqs"])
 
     cyclefilter = cycle.CyclesFilter()
     cyclefilter.setBuilder(cycleBuilder)

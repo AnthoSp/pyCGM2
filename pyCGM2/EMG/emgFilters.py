@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
+import logging
 import numpy as np
 from pyCGM2.Signal import signal_processing
 from pyCGM2.Tools import btkTools
 from pyCGM2 import enums
-from pyCGM2.EMG import coactivation
-from pyCGM2.Utils import utils
-from pyCGM2 import btk
+
 
 class BasicEmgProcessingFilter(object):
     """
@@ -24,13 +23,15 @@ class BasicEmgProcessingFilter(object):
     def run(self):
         fa=self.m_acq.GetAnalogFrequency()
         for label in self.m_labels:
-            values =  self.m_acq.GetAnalog(utils.str(label)).GetValues()
+            values =  self.m_acq.GetAnalog(label).GetValues()
             # stop 50hz
             value50= signal_processing.remove50hz(values,fa)
             # high pass and compensation with mean
             hpLower = self.m_hpf_low
             hpUpper = self.m_hpf_up
             valuesHp =  signal_processing.highPass(value50,hpLower,hpUpper,fa)
+
+            valuesHp = valuesHp - valuesHp.mean()
 
             btkTools.smartAppendAnalog(self.m_acq,label+"_HPF",valuesHp, desc= "high Pass filter" )
 
@@ -56,7 +57,7 @@ class EmgEnvelopProcessingFilter(object):
     def run(self):
         fa=self.m_acq.GetAnalogFrequency()
         for label in self.m_labels:
-            values =  self.m_acq.GetAnalog(utils.str(label)).GetValues()
+            values =  self.m_acq.GetAnalog(label).GetValues()
             valuesFilt = signal_processing.enveloppe(values, self.m_fc,fa)
             btkTools.smartAppendAnalog(self.m_acq,label+"_Env",valuesFilt, desc= "fc("+str(self.m_fc)+")")
 
@@ -122,7 +123,7 @@ class EmgNormalisationProcessingFilter(object):
             filenameOut  = c3d[:-4] + "_" + self.m_fileSuffix+".c3d" if self.m_fileSuffix is not None else c3d
             acq = btkTools.smartReader((self.m_c3dPath+c3d))
 
-            values =  acq.GetAnalog(utils.str(self.m_label)).GetValues()
+            values =  acq.GetAnalog(self.m_label).GetValues()
             valuesNorm = values / self.m_threshold
 
             btkTools.smartAppendAnalog(acq,self.m_label+"_Norm",valuesNorm, desc= "Normalization)")
@@ -133,7 +134,7 @@ class EmgNormalisationProcessingFilter(object):
     def processAnalysis(self):
 
         for contextIt in ["Left","Right"]:
-            if self.m_analysis.emgStats.data.has_key((self.m_label,contextIt)):
+            if (self.m_label,contextIt) in self.m_analysis.emgStats.data:
                 values = self.m_analysis.emgStats.data[self.m_label,contextIt]["values"]
                 valuesNorm = list()
 

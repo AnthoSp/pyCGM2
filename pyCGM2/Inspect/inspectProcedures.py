@@ -1,15 +1,17 @@
-import logging
-import pyCGM2
-from pyCGM2 import btk
-from pyCGM2.Tools import btkTools
-from pyCGM2.Math import derivation,geometry
-from pyCGM2.Signal import detect_peaks
-import matplotlib.pyplot as plt
+# -*- coding: utf-8 -*-
 import numpy as np
 from matplotlib.path import Path
-from pyCGM2.Model import model, modelDecorator, frame, motion
-from pyCGM2.Model.CGM2 import cgm, cgm2
+import logging
 
+try: 
+    from pyCGM2 import btk
+except:
+    logging.info("[pyCGM2] pyCGM2-embedded btk not imported")
+    import btk
+from pyCGM2.Tools import btkTools
+from pyCGM2.Math import geometry
+
+from pyCGM2.Model import   frame
 from pyCGM2.Utils import utils
 from pyCGM2.Signal import detect_changes
 
@@ -25,13 +27,13 @@ class GaitEventQualityProcedure(object):
 
     def check(self):
 
+        events = self.acq.GetEvents()
 
-        events = btkTools.sortedEvents(self.acq)
         if events != []:
 
             events_L = list()
             events_R = list()
-            for ev in events:
+            for ev in btk.Iterate(events):
                 if ev.GetContext() == "Left":
                     events_L.append(ev)
                 if ev.GetContext() == "Right":
@@ -39,8 +41,8 @@ class GaitEventQualityProcedure(object):
 
 
             if events_L!=[] and events_R!=[]:
-                labels = [it.GetLabel() for it in events if it.GetLabel() in ["Foot Strike","Foot Off"]]
-                frames = [it.GetFrame() for it in events if it.GetLabel() in ["Foot Strike","Foot Off"]]
+                labels = [it.GetLabel() for it in btk.Iterate(events) if it.GetLabel() in ["Foot Strike","Foot Off"]]
+                frames = [it.GetFrame() for it in btk.Iterate(events) if it.GetLabel() in ["Foot Strike","Foot Off"]]
 
                 init = labels[0]
                 for i in range(1,len(labels)):
